@@ -196,13 +196,20 @@
     </div>
 
     <script>
-        const apiKey = "AIzaSyBLrA15r4UIAI_Xg6G6arOpQS9QnwVeZrI"; // Runtime provides the key
+        // 請在此處填入您的 Google AI Studio API Key
+        const apiKey = "AIzaSyBLrA15r4UIAI_Xg6G6arOpQS9QnwVeZrI"; 
 
         async function generateBlessing() {
             const input = document.getElementById('aiInput').value;
             const btn = document.getElementById('genBtn');
             const resultDiv = document.getElementById('aiResult');
             
+            if (!apiKey) {
+                resultDiv.classList.remove('hidden');
+                resultDiv.innerHTML = "⚠️ 請先在程式碼中填入 API Key 才能使用 AI 功能。";
+                return;
+            }
+
             if (!input.trim()) return;
 
             btn.disabled = true;
@@ -228,12 +235,19 @@
                         body: JSON.stringify(payload)
                     });
 
-                    if (!response.ok) throw new Error('API Error');
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error?.message || 'API 請求失敗');
+                    }
 
                     const data = await response.json();
                     const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
                     
-                    resultDiv.innerHTML = "✨ 建議祝福語：<br>「" + text.trim() + "」<br><span class='text-[10px] mt-2 block opacity-50'>(靈感來自星空 AI，你可以修改成更像你的口吻喔！)</span>";
+                    if (text) {
+                        resultDiv.innerHTML = "✨ 建議祝福語：<br>「" + text.trim() + "」<br><span class='text-[10px] mt-2 block opacity-50'>(靈感來自星空 AI，你可以修改成更像你的口吻喔！)</span>";
+                    } else {
+                        throw new Error('未生成內容');
+                    }
                 } catch (error) {
                     if (retryCount < 5) {
                         setTimeout(() => {
@@ -241,7 +255,7 @@
                             callApi();
                         }, backoff[retryCount]);
                     } else {
-                        resultDiv.innerHTML = "哎呀，星空暫時斷線了，請再試一次或自己寫下真心話吧！";
+                        resultDiv.innerHTML = "❌ 錯誤：" + error.message + "<br>請檢查 API Key 是否正確或網路狀態。";
                     }
                 } finally {
                     btn.disabled = false;
