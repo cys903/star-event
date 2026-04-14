@@ -79,7 +79,7 @@
             font-weight: bold;
             flex-shrink: 0;
         }
-        .ai-generator {
+        .idea-generator {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -89,7 +89,14 @@
             z-index: 20;
         }
         @media print {
-            .ai-generator { display: none; }
+            .idea-generator { display: none; }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
@@ -100,13 +107,13 @@
         
         <!-- Header -->
         <header class="relative z-10 text-center mb-6">
-            <p class="text-amber-400 font-bold tracking-[0.3em] mb-3 text-xl">致全體九年級同學</p>
-            <h1 class="serif text-7xl font-black mb-5 glow tracking-tight text-white leading-tight">
+            <p class="text-amber-400 font-bold tracking-[0.3em] mb-3 text-xl text-center">致全體九年級同學</p>
+            <h1 class="serif text-7xl font-black mb-5 glow tracking-tight text-white leading-tight text-center">
                 親愛的你，<br>
                 <span class="text-amber-300">比分數更耀眼！</span>
             </h1>
             <div class="max-w-2xl mx-auto px-6 py-4 bg-white/10 backdrop-blur-sm rounded-full border border-white/20">
-                <p class="text-base leading-relaxed text-slate-200">
+                <p class="text-base leading-relaxed text-slate-200 text-center">
                     在《你很特別》的故事裡，每顆星星都代表一份肯定與欣賞。讓我們放下標籤，親手貼上一份文字祝福，點亮彼此！
                 </p>
             </div>
@@ -159,18 +166,17 @@
                 </p>
             </div>
 
-            <!-- ✨ Gemini Powered Feature: AI Blessing Generator -->
-            <div class="ai-generator">
+            <!-- Offline Idea Generator Section -->
+            <div class="idea-generator">
                 <h3 class="text-amber-300 font-bold mb-3 flex items-center gap-2">
-                    <span>✨</span> 詞窮了嗎？AI 給你祝福靈感
+                    <span>✨</span> 詞窮了嗎？祝福靈感抽卡機
                 </h3>
-                <div class="flex gap-2 mb-3">
-                    <input type="text" id="aiInput" placeholder="輸入同學的優點 (如：認真、開朗...)" class="flex-1 bg-white/20 border border-white/30 rounded px-3 py-2 text-white placeholder-white/50 outline-none focus:border-amber-400">
-                    <button onclick="generateBlessing()" id="genBtn" class="bg-amber-400 hover:bg-amber-500 text-indigo-900 font-bold py-2 px-4 rounded transition-colors flex items-center gap-2">
-                        <span>✨</span> 產生祝福語
+                <div class="flex justify-center mb-3">
+                    <button onclick="getRandomBlessing()" class="bg-amber-400 hover:bg-amber-500 text-indigo-900 font-bold py-3 px-8 rounded-full transition-all active:scale-95 flex items-center gap-2 shadow-lg">
+                        <span>🌟</span> 點我獲取暖心靈感
                     </button>
                 </div>
-                <div id="aiResult" class="hidden bg-white/10 rounded p-3 text-sm text-slate-200 border-l-4 border-amber-400 italic">
+                <div id="ideaResult" class="hidden bg-white/10 rounded-xl p-4 text-slate-200 border-l-4 border-amber-400 italic text-base leading-relaxed">
                     <!-- Result will appear here -->
                 </div>
             </div>
@@ -179,91 +185,53 @@
         <!-- Footer -->
         <footer class="relative z-10 text-center mt-auto">
             <div class="inline-block px-10 py-5 border-t-2 border-b-2 border-white/20">
-                <p class="serif text-2xl italic text-amber-200 opacity-90">
+                <p class="serif text-2xl italic text-amber-200 opacity-90 text-center">
                     「你在我心中真的很特別，不為別的，只因為你是你。」
                 </p>
             </div>
             <div class="mt-6 flex justify-between items-end text-white/60">
-                <div class="text-left">
-                    <p class="text-xs">地點：學校圖書館．銀河牆</p>
-                    <p class="text-xs">時間：即日起至會考前夕</p>
+                <div class="text-left text-xs md:text-sm">
+                    <p>地點：學校圖書館．銀河牆</p>
+                    <p>時間：即日起至會考前夕</p>
                 </div>
                 <div class="text-right">
-                    <p class="text-xs tracking-widest uppercase text-amber-400">明湖國中 綜合活動領域</p>
+                    <p class="text-[10px] md:text-xs tracking-widest uppercase text-amber-400">明湖國中 綜合活動領域</p>
                 </div>
             </div>
         </footer>
     </div>
 
     <script>
-        // 請在此處填入您的 Google AI Studio API Key
-        const apiKey = "AIzaSyBLrA15r4UIAI_Xg6G6arOpQS9QnwVeZrI"; 
+        const blessings = [
+            "看見你每天堅持早起複習，那份專注的側臉比星星還亮。不論分數如何，你努力的過程已經非常特別。",
+            "我注意到你總是耐心為同學解題，那份溫柔與善良，是比滿級分更珍貴的禮物。",
+            "這段時間你的進步我都看在眼裡，不是因為分數變多，而是因為你沒有放棄的勇氣。",
+            "即便面對困難的考題，你依然能保持冷靜思考。這份沉穩，會帶領你走向最適合你的遠方。",
+            "謝謝你總是用開朗的笑聲化解考前的壓力，你的存在本身，就是我們班級最亮的一顆星。",
+            "我看見你在考卷邊緣寫下的自我鼓勵，那份對未來的期許，是誰也拿不走的專屬光芒。",
+            "即使感到焦慮，你依然選擇坐在座位上堅持下去。這份韌性，就是《你很特別》裡提到的『做自己』。",
+            "不論世界給我們貼上什麼標籤，記得微美克人胖哥說的：『你在我心中真的很特別，只因為你是你。』",
+            "看見你認真訂正錯誤的樣子，我發現你已經擁有比標準答案更重要的東西——那就是對成長的渴望。",
+            "會考只是一場實驗，而你是一個無限可能的科學家。不要被數據定義，要被你的熱情引領。",
+            "你的體貼和細心，讓圖書館的空氣都變得溫暖了。分數會變動，但你的善良永遠是恆星。",
+            "謝謝你在最後衝刺階段依然保持善良，願意分享你的筆記。這份大氣，讓你比想像中更耀眼。"
+        ];
 
-        async function generateBlessing() {
-            const input = document.getElementById('aiInput').value;
-            const btn = document.getElementById('genBtn');
-            const resultDiv = document.getElementById('aiResult');
+        function getRandomBlessing() {
+            const resultDiv = document.getElementById('ideaResult');
+            const randomIndex = Math.floor(Math.random() * blessings.length);
             
-            if (!apiKey) {
-                resultDiv.classList.remove('hidden');
-                resultDiv.innerHTML = "⚠️ 請先在程式碼中填入 API Key 才能使用 AI 功能。";
-                return;
-            }
-
-            if (!input.trim()) return;
-
-            btn.disabled = true;
-            btn.innerHTML = "✨ 生成中...";
-            resultDiv.classList.remove('hidden');
-            resultDiv.innerHTML = "正在向星空請求靈感...";
-
-            const prompt = `你現在是一位充滿愛心的國中老師。請根據關鍵字「${input}」，寫一段送給即將參加會考的學生的祝福語。這段話必須符合《你很特別》繪本的精神（強調每個人的獨特性、不被標籤定義），且內容要「具體且真誠」，字數約 30-50 字。請直接輸出這段話，不要有其他廢話。`;
-
-            const payload = {
-                contents: [{ parts: [{ text: prompt }] }],
-                systemInstruction: { parts: [{ text: "你是一個溫暖、正向且擅長文字修辭的校園輔導老師。" }] }
-            };
-
-            let retryCount = 0;
-            const backoff = [1000, 2000, 4000, 8000, 16000];
-
-            async function callApi() {
-                try {
-                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.error?.message || 'API 請求失敗');
-                    }
-
-                    const data = await response.json();
-                    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-                    
-                    if (text) {
-                        resultDiv.innerHTML = "✨ 建議祝福語：<br>「" + text.trim() + "」<br><span class='text-[10px] mt-2 block opacity-50'>(靈感來自星空 AI，你可以修改成更像你的口吻喔！)</span>";
-                    } else {
-                        throw new Error('未生成內容');
-                    }
-                } catch (error) {
-                    if (retryCount < 5) {
-                        setTimeout(() => {
-                            retryCount++;
-                            callApi();
-                        }, backoff[retryCount]);
-                    } else {
-                        resultDiv.innerHTML = "❌ 錯誤：" + error.message + "<br>請檢查 API Key 是否正確或網路狀態。";
-                    }
-                } finally {
-                    btn.disabled = false;
-                    btn.innerHTML = "<span>✨</span> 產生祝福語";
-                }
-            }
-
-            callApi();
+            resultDiv.classList.remove('hidden', 'fade-in');
+            // 強制重繪以觸發動畫
+            void resultDiv.offsetWidth; 
+            
+            resultDiv.innerHTML = `
+                <div class="fade-in">
+                    <p class="mb-2">“${blessings[randomIndex]}”</p>
+                    <span class='text-[10px] opacity-50 block text-right'>— 暖心祝福靈感庫</span>
+                </div>
+            `;
+            resultDiv.classList.add('fade-in');
         }
     </script>
 </body>
